@@ -2,6 +2,12 @@ const express = require('express')
 const db = require('quick.db')
 const app = express()
 const bodyParser = require('body-parser')
+const cors = require('cors')
+app.use(cors({
+    origin:['http://localhost:6060'],
+    methods:['GET','POST'],
+    credentials: true // enable set cookie
+}));
 app.use(bodyParser.json())
 var session = require('express-session')
 const fs = require('fs')
@@ -11,7 +17,7 @@ app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }
+  cookie: { secure: false }
 }))
 app.set('view engine', 'ejs')
 app.set("views", "site/views")

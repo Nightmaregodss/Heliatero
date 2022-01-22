@@ -9,6 +9,8 @@ function generateSession(username) {
   }
   
   function checkSession(username, session) {
+    if(session == undefined) return false;
+    if(username == undefined) return false;
     if(sessionTokens.get(session) == username) return true;
     return false;
   }

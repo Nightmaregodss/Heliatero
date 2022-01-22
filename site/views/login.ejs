@@ -8,6 +8,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100&display=swap" rel="stylesheet">
+<script>
+    function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+axios.defaults.withCredentials = true;
+</script>
 <style>
 html {
     background-color: #1b222e;
@@ -33,12 +45,13 @@ body {
                 <h1 style="color: white">Please login.</h1>
                 <script>
                     function onSubm() {
-                        axios.post("/auth/login", {username:document.getElementById("usrname").value,password:document.getElementById("passwrd").value}).then(res => {
+                        axios.post("/auth/login", {username:document.getElementById("usrname").value,password:document.getElementById("passwrd").value}, {withCredentials:true}).then(res => {
                             let d = res.data;
                             if(d.error == true) {
                                 showIncPass(d.message)
                             }else{
                                 showSucMsg(`Session Token: ${d.token}`)
+                                window.location.href = `/dashboard?sessionToken=${d.token}`
                             }
                         })
                     }
