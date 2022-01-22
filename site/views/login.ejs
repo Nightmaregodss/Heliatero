@@ -6,6 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100&display=swap" rel="stylesheet">
 <style>
 html {
@@ -26,14 +27,37 @@ body {
     <body>
         <center>
             <h1 style="color: white;font-size: 1in;">Heliatero</h1>
+            <div class="alert alert-danger" style="width: 45%;" id="incPassDiv" hidden>Incorrect password!</div>
+            <div class="alert alert-success" style="width: 45%;" id="loginSucMsg" hidden></div>
             <div class="card"><br>
                 <h1 style="color: white">Please login.</h1>
-                <form>
+                <script>
+                    function onSubm() {
+                        axios.post("/auth/login", {username:document.getElementById("usrname").value,password:document.getElementById("passwrd").value}).then(res => {
+                            let d = res.data;
+                            if(d.error == true) {
+                                showIncPass(d.message)
+                            }else{
+                                showSucMsg(`Session Token: ${d.token}`)
+                            }
+                        })
+                    }
+                    function showIncPass(msg) {
+                        document.getElementById("incPassDiv").hidden = false;
+                        document.getElementById("incPassDiv").innerHTML = msg;
+                    }
+                    function showSucMsg(msg) {
+                        document.getElementById("loginSucMsg").hidden = false;
+                        document.getElementById("loginSucMsg").innerHTML = msg;
+                    }
+                </script>
+                
+                <form onsubmit="onSubm()" action="#">
                     <p style="color: white; font-size: x-large;">Username:</p>
-                    <input class="form-control" placeholder="myusername" style="background-color: #191b21;width:55%;">
+                    <input class="form-control" id="usrname" placeholder="myusername" style="background-color: #191b21;width:55%;">
                     <p style="color: white; font-size: x-large;">Password:</p>
-                    <input class="form-control" placeholder="S3c4r3Pa22w0rd" style="background-color: #191b21;width:55%;"><br>
-                    <button class="btn btn-primary">Login</button>
+                    <input class="form-control" type="password" id="passwrd" placeholder="S3c4r3Pa22w0rd" style="background-color: #191b21;width:55%;"><br>
+                    <button class="btn btn-primary" type="submit">Login</button>
                 </form>
             </div>
         </center>
