@@ -2,7 +2,6 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8">
-    <title>Heliatero &bullet; Dashboard</title>
     <!-- Boxicons CDN Link -->
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,27 +14,39 @@
     </div>
       <ul class="nav-links">
         <li>
-          <a href="../dashboard" class="active">
-            <i class='bx bx-home' ></i>
-            <span class="links_name">Dashboard</span>
+          <a href="../console" class="active">
+            <i class='bx bx-terminal' ></i>
+            <span class="links_name">Console</span>
           </a>
         </li>
         <li>
-          <a href="../account">
-            <i class='bx bx-user' ></i>
-            <span class="links_name">Account</span>
+          <a href="../files">
+            <i class='bx bx-folder' ></i>
+            <span class="links_name">Files</span>
           </a>
         </li>
         <li>
-          <a href="../admin">
+          <a href="../network">
+            <i class='bx bx-network-chart' ></i>
+            <span class="links_name">Network</span>
+          </a>
+        </li>
+        <li>
+          <a href="../settings">
             <i class='bx bx-cog' ></i>
-            <span class="links_name">Admin</span>
+            <span class="links_name">Settings</span>
+          </a>
+        </li>
+        <li>
+          <a href="../reinstall">
+            <i class='bx bx-refresh' ></i>
+            <span class="links_name">Reinstall</span>
           </a>
         </li>
         <li class="log_out">
-          <a href="../logout">
-            <i class='bx bx-log-out'></i>
-            <span class="links_name">Logout</span>
+          <a href="../dashboard">
+            <i class='bx bx-arrow-back'></i>
+            <span class="links_name">Back to Dashboard</span>
           </a>
         </li>
       </ul>
@@ -46,63 +57,98 @@
         <i class='bx bx-menu sidebarBtn'></i>
         <span class="dashboard">Welcome!</span>
       </div>
-      <div class="profile-details" style="text-align: center !important;">
+      <div class="profile-details">
         <!--<img src="images/profile.jpg" alt="">-->
-        <span class="admin_name" style="text-align: center !important;"><%= req.session.username %></span>
+        <span class="admin_name">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <%= req.session.username %></span>
       </div>
     </nav>
 
     <div class="home-content">
-      <div class="sales-boxes">
-        <div class="recent-sales box">
-          <div class="title">Your Servers</div>
-          <div class="sales-details">
-            <ul class="details">
-              <li class="topic">Name</li>
-              <% for (let server of servers) { %>
-                <li><a href="#"><%= server %></a></li>
-              <% } %>
-            </ul>
-            <ul class="details">
-              <li class="topic">Memory</li>
-              <% for (let server of srvstats) { %>
-                <li><a href="#"><%= server.stats.memory ? server.stats.memory.toFixed(2) : 0 %>MB/1GB</a></li>
-              <% } %>
-            </ul>
-            <ul class="details">
-              <li class="topic">CPU</li>
-              <% for (let server of srvstats) { %>
-                <li><a href="#"><%= server.stats.cpu ? server.stats.cpu.toFixed(2) : 0 %>%/100%</a></li>
-              <% } %>
-            </ul>
-            <ul class="details">
-              <li class="topic">Storage</li>
-              <% for (let server of srvstats) { %>
-                <li><a href="#"><%= server.stats.storage ? server.stats.storage : 0 %>/10GB</a></li>
-              <% } %>
-            </ul>
-            <ul class="details">
-            <li class="topic">Options</li>
-            <% for(let server of servers) { %>
-                <li>
-                    <div class="button">
-                      <a href="/servers/<%= server %>">View</a></lia>
-                    </div>
-                  </li>
-            <% } %>
+      <div class="sales-boxes" style="height: 100% !important;">
+        <div class="recent-sales box" style="height:400%;">
+          <div class="title">Server Console</div>
+          <br>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js" integrity="sha512-2PRgAav8Os8vLcOAh1gSaDoNLe1fAyq8/G3QSdyjFFD+OqNjLeHE/8q4+S4MEZgPsuo+itHopj+hJvqS8XUQ8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" integrity="sha512-iLYuqv+v/P4u9erpk+KM83Ioe/l7SEmr7wB6g+Kg1qmEit8EShDKnKtLHlv2QXUp7GGJhmqDI+1PhJYLTsfb8w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+          <div style="background-color: black; border-radius: 7px; color: white; width: 98%;height:95%;overflow: scroll !important;" id="terminal">
+
+</div>
+<script>
+    var term = new Terminal({cursorBlink: true});
+    term.open(document.getElementById('terminal'));
+    const ws = new WebSocket(`ws${document.location.protocol=="https:"?"s":""}://localhost:6060/servers/console/<%= id %>`);
+    ws.onopen = () => {
+        console.log("Connected to websocket");
+        document.getElementById("contentOfConsole").innerHTML = "&nbsp; &nbsp; [Daemon] Connected to websocket.";
+       setTimeout(() => {
+        ws.send("clear")
+       }, 500)
+    };
+    let command = ""
+    term.onData(function(data) {
+        if(data == '\r') {
+            if(command.trim() == "") {
+
+            }else{
+                ws.send(command.trim());
+            command = '';
+            }
+        }
+        if(data == '\u0003') {
+            term.write('^C');
+            command = ''
+        }
+        command += data
+        term.write(data);
+    });
+    ws.onmessage = evt => {
+      let data = evt.data
+      console.log(data)
+      if(JSON.parse(data).message !== "undefined") {
+          if(JSON.parse(data).command) {
+
+          }else{
+        term.write(`${JSON.parse(data).message}`) 
+          }
+      }
+     
+    };
+</script>
+<script>
+    
+  </script>
+<br>
           </div>
-        </div>
         <div class="top-sales box">
-        <div class="title">System Nodes</div>
-        <ul class="top-sales-details">
-        <li>
-        <a href="#">
-        <!--<img src="images/sunglasses.jpg" alt="">-->
-        <span class="product">Node1</span>
-        </a>
-        <span class="price"><i class='bx bx-check'></i> Online</span>
-        </li>
-        </ul>
+          <div class="title">Information</div>
+          <br>
+          <label>Memory:</label>
+      <br>
+      <div class="input-box">
+        <input type="text" placeholder="0 / 1.02GB" disabled>
+      </div>
+          <br>
+          <label>CPU:</label>
+      <br>
+      <div class="input-box">
+        <input type="text" placeholder="0 / 100%" disabled>
+      </div>
+          <br>
+          <label>Storage:</label>
+      <br>
+      <div class="input-box">
+        <input type="text" placeholder="Enter your new password" disabled>
+      </div>
+          <br>
+          <label>Status:</label>
+      <br>
+      <div class="input-box">
+        <input type="text" placeholder="Server is online" disabled>
+      </div>
+<br>
+<center>
+<div class="button"><a href="#">Start</a>&nbsp;<a href="#">Stop</a>&nbsp;<a href="#">Kill</a>&nbsp;<a href="#">Reinstall</a></div>
+</center>
         </div>
       </div>
     </div>
@@ -420,6 +466,19 @@ nav .profile-details i{
   width: 100%;
   display: flex;
   justify-content: flex-end;
+}
+.input-box input{
+  height: 100%;
+  width: 100%;
+  outline: none;
+  padding: 0 15px;
+  font-size: 17px;
+  font-weight: 400;
+  color: #333;
+  border: 1.5px solid #C7BEBE;
+  border-bottom-width: 2.5px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
 .sales-boxes .box .button a{
   color: #fff;

@@ -10,6 +10,7 @@ app.use(cors({
 }));
 app.use(bodyParser.json())
 var session = require('express-session')
+var expressWs = require('express-ws')(app);
 const fs = require('fs')
 const argon2 = require('argon2');
 app.set('trust proxy', 1) // trust first proxy
@@ -29,11 +30,12 @@ let allrouters = fs.readdirSync('./routers').filter(file => file.endsWith('.js')
 for(let i = 0; i < allrouters.length; i++) {
   let router = require('./routers/' + allrouters[i]);
   app.use('/' + allrouters[i].replace('.js', ''), router);
+  expressWs.applyTo(router);
   console.log("[ROUTING] Loaded router /" + allrouters[i].replace('.js', ''))
 }
 
 app.get("/login", async (req, res) => {
-    res.render("login")
-})
+    res.render("login");
+});
 
-module.exports = {app:app}
+module.exports = { app: app };
