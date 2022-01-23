@@ -125,29 +125,34 @@
           <label>Memory:</label>
       <br>
       <div class="input-box">
-        <input type="text" placeholder="0 / 1.02GB" disabled>
+        <input type="text" placeholder="<%= stats.memory ? stats.memory.toFixed(2) : 0 %>MB / 1GB" disabled>
       </div>
           <br>
           <label>CPU:</label>
       <br>
       <div class="input-box">
-        <input type="text" placeholder="0 / 100%" disabled>
+        <input type="text" placeholder="<%= stats.cpu ? stats.cpu.toFixed(2) : 0 %>% / 100%" disabled>
       </div>
           <br>
           <label>Storage:</label>
       <br>
       <div class="input-box">
-        <input type="text" placeholder="Enter your new password" disabled>
+        <input type="text" placeholder="<%= stats.storage %> / 10GB" disabled>
       </div>
           <br>
           <label>Status:</label>
       <br>
       <div class="input-box">
-        <input type="text" placeholder="Server is online" disabled>
+        <% if((stats.memory ? stats.memory.toFixed(2) : 0) >= 1) { %>
+            <input type="text" placeholder="Server is online" disabled>
+        <% }else{ %>
+            <input type="text" placeholder="Server is offline" disabled>
+        <% } %>
       </div>
 <br>
 <center>
-<div class="button"><a href="#">Start</a>&nbsp;<a href="#">Stop</a>&nbsp;<a href="#">Kill</a>&nbsp;<a href="#">Reinstall</a></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.25.0/axios.min.js" integrity="sha512-/Q6t3CASm04EliI1QyIDAA/nDo9R8FQ/BULoUFyN4n/BDdyIxeH7u++Z+eobdmr11gG5D/6nPFyDlnisDwhpYA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<div class="button"><a href="#" onclick="axios.get('/servers/power/start/<%= req.params.id %>')">Start</a>&nbsp;<a href="#" onclick="axios.get('/servers/power/stop/<%= req.params.id %>')">Stop</a>&nbsp;<a href="#" onclick="axios.get('/servers/power/restart/<%= req.params.id %>')">Restart</a></div>
 </center>
         </div>
       </div>

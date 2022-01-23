@@ -43,11 +43,48 @@ router.get("/:id", async(req, res) => {
         let servers = db.get(`servers-${req.session.username}`);
         if(!servers) servers = [];
         if(!servers.includes(`${req.params.id}`)) return res.redirect("/dashboard");
-        res.render("console", {req:req, id:req.params.id});
+        const t = await axios.get(`${settings.nodes[0].contact}/stats/${req.params.id}`);
+        res.render("console", {req:req, id:req.params.id,stats:t.data});
     } else {
         res.json({ error: true, message: "Not logged in." });
     }
 })
+
+router.get("/power/start/:id", async(req, res) => {
+    if (checkSession(req.session.username, req.session.sessionToken)) {
+        let servers = db.get(`servers-${req.session.username}`);
+        if(!servers) servers = [];
+        if(!servers.includes(`${req.params.id}`)) return res.redirect("/dashboard");
+        const t = await axios.get(`${settings.nodes[0].contact}/power/start/${req.params.id}`);
+        res.json(t.data)
+    } else {
+        res.json({ error: true, message: "Not logged in." });
+    }
+})
+router.get("/power/stop/:id", async(req, res) => {
+    if (checkSession(req.session.username, req.session.sessionToken)) {
+        let servers = db.get(`servers-${req.session.username}`);
+        if(!servers) servers = [];
+        if(!servers.includes(`${req.params.id}`)) return res.redirect("/dashboard");
+        const t = await axios.get(`${settings.nodes[0].contact}/power/stop/${req.params.id}`);
+        res.json(t.data)
+    } else {
+        res.json({ error: true, message: "Not logged in." });
+    }
+})
+
+router.get("/power/restart/:id", async(req, res) => {
+    if (checkSession(req.session.username, req.session.sessionToken)) {
+        let servers = db.get(`servers-${req.session.username}`);
+        if(!servers) servers = [];
+        if(!servers.includes(`${req.params.id}`)) return res.redirect("/dashboard");
+        const t = await axios.get(`${settings.nodes[0].contact}/power/restart/${req.params.id}`);
+        res.json(t.data)
+    } else {
+        res.json({ error: true, message: "Not logged in." });
+    }
+})
+
 
 router.ws("/console/:id", (ws, req) => {
     let { id } = req.params;
